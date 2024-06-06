@@ -40,13 +40,13 @@ $ipConfig1 = New-AzNetworkInterfaceIpConfig -Name "$vmName1-ipconfig" -SubnetId 
 $nsg1 = Get-AzNetworkSecurityGroup -Name $networkSecurityGroupName -ResourceGroupName $resourceGroupName
 $nic1 = New-AzNetworkInterface -Name "$vmName1-nic" -ResourceGroupName $resourceGroupName -Location $location -IpConfiguration $ipConfig1 -NetworkSecurityGroupId $nsg1.Id
 
-$vmConfig1 = New-AzVMConfig -VMName $vmName1 -VMSize $vmSize
+$vmConfig1 = New-AzVmConfig -VMName $vmName1 -VMSize $vmSize
 $vmConfig1 = Set-AzVMOperatingSystem -VM $vmConfig1 -Linux -ComputerName $vmName1 -Credential (New-Object PSCredential "azureuser", (ConvertTo-SecureString "placeholderpassword" -AsPlainText -Force)) -DisablePasswordAuthentication
 $vmConfig1 = Set-AzVMSourceImage -VM $vmConfig1 -PublisherName "Canonical" -Offer "0001-com-ubuntu-server-jammy" -Skus "22_04-lts-gen2" -Version "latest"
 $vmConfig1 = Add-AzVMNetworkInterface -VM $vmConfig1 -Id $nic1.Id
 $vmConfig1 = Set-AzVMOSDisk -VM $vmConfig1 -CreateOption FromImage -Name "$vmName1-osdisk" -DiskSizeInGB 30
 
-New-AzVM -ResourceGroupName $resourceGroupName -Location $location -VM $vmConfig1 -Zone $zone1 -SshKeyName $sshKeyName
+New-AzVm -ResourceGroupName $resourceGroupName -Location $location -VM $vmConfig1 -Zone $zone1 -SshKeyName $sshKeyName
 
 # Створення другої віртуальної машини у зоні доступності 2
 $vmName2 = "matebox2"
@@ -55,10 +55,10 @@ $ipConfig2 = New-AzNetworkInterfaceIpConfig -Name "$vmName2-ipconfig" -SubnetId 
 $nsg2 = Get-AzNetworkSecurityGroup -Name $networkSecurityGroupName -ResourceGroupName $resourceGroupName
 $nic2 = New-AzNetworkInterface -Name "$vmName2-nic" -ResourceGroupName $resourceGroupName -Location $location -IpConfiguration $ipConfig2 -NetworkSecurityGroupId $nsg2.Id
 
-$vmConfig2 = New-AzVMConfig -VMName $vmName2 -VMSize $vmSize
+$vmConfig2 = New-AzVmConfig -VMName $vmName2 -VMSize $vmSize
 $vmConfig2 = Set-AzVMOperatingSystem -VM $vmConfig2 -Linux -ComputerName $vmName2 -Credential (New-Object PSCredential "azureuser", (ConvertTo-SecureString "placeholderpassword" -AsPlainText -Force)) -DisablePasswordAuthentication
 $vmConfig2 = Set-AzVMSourceImage -VM $vmConfig2 -PublisherName "Canonical" -Offer "0001-com-ubuntu-server-jammy" -Skus "22_04-lts-gen2" -Version "latest"
 $vmConfig2 = Add-AzVMNetworkInterface -VM $vmConfig2 -Id $nic2.Id
 $vmConfig2 = Set-AzVMOSDisk -VM $vmConfig2 -CreateOption FromImage -Name "$vmName2-osdisk" -DiskSizeInGB 30
 
-New-AzVM -ResourceGroupName $resourceGroupName -Location $location -VM $vmConfig2 -Zone $zone2 -SshKeyName $sshKeyName
+New-AzVm -ResourceGroupName $resourceGroupName -Location $location -VM $vmConfig2 -Zone $zone2 -SshKeyName $sshKeyName
