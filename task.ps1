@@ -44,7 +44,7 @@ New-AzVm `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
 -SshKeyName $sshKeyName `
--Zone 1
+-Zone "1"
 # -PublicIpAddressName $publicIpAddressName
 New-AzVm `
 -ResourceGroupName $resourceGroupName `
@@ -56,4 +56,4 @@ New-AzVm `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
 -SshKeyName $sshKeyName `
--Zone 2
+-Zone "2"
