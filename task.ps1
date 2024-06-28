@@ -6,10 +6,12 @@ $subnetName = "default"
 $vnetAddressPrefix = "10.0.0.0/16"
 $subnetAddressPrefix = "10.0.0.0/24"
 $sshKeyName = "linuxboxsshkey"
-$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
-$vmName = "matebox"
+$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub"
 $vmImage = "Ubuntu2204"
 $vmSize = "Standard_B1s"
+
+$vmName1 = "matebox1"
+$vmName2 = "matebox2"
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -33,14 +35,29 @@ New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey 
 # and set same zone you would set on the VM, but this is not required in this task. 
 # New-AzPublicIpAddress -Name $publicIpAddressName -ResourceGroupName $resourceGroupName -Location $location -Sku Basic -AllocationMethod Dynamic -DomainNameLabel "random32987"
 
+
+Write-Host "Deploying VM $vmName1 ..."
 New-AzVm `
 -ResourceGroupName $resourceGroupName `
--Name $vmName `
+-Name $vmName1 `
 -Location $location `
 -image $vmImage `
 -size $vmSize `
 -SubnetName $subnetName `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
-# -PublicIpAddressName $publicIpAddressName
+-SshKeyName $sshKeyName `
+-Zone 1
+
+Write-Host "Deploying VM $vmName2 ..."
+New-AzVm `
+-ResourceGroupName $resourceGroupName `
+-Name $vmName2 `
+-Location $location `
+-image $vmImage `
+-size $vmSize `
+-SubnetName $subnetName `
+-VirtualNetworkName $virtualNetworkName `
+-SecurityGroupName $networkSecurityGroupName `
+-SshKeyName $sshKeyName `
+-Zone 2
