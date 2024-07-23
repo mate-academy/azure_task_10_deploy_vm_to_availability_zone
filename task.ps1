@@ -10,10 +10,13 @@
         - SSH authentification
         - password still necessary for admin privilages
         - Cost-Free deploying in terms of Azure Free Account Subscription
-            Therefore - PublicIP settings & VMConfig section is commented
-            Since "Basic" Sku parameter is deprecated
-            within the Availability Zones
-              * Settings & section are present for personal future use
+          Therefore:
+          - PublicIP settings & VMConfig section is commented
+              Since "Basic" Sku parameter is deprecated
+              within the Availability Zones
+          - As a result of tht ^^ Regular connection from outside internet
+              is not available
+      * PublicI Settings & section are present for personal future use
   4)  Set preferred settings below:
 #>
 
