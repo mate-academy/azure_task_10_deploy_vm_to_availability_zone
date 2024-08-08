@@ -10,6 +10,8 @@ $sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub"
 $vmName = "matebox"
 $vmImage = "Ubuntu2204"
 $vmSize = "Standard_B1s"
+$zone1 = "1"
+$zone2 = "2"
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -39,8 +41,22 @@ New-AzVm `
 -Location $location `
 -image $vmImage `
 -size $vmSize `
+-Zone $zone1 `
 -SubnetName $subnetName `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
 -SshKeyName $sshKeyName 
 # -PublicIpAddressName $publicIpAddressName
+
+Write-Host "Creating second vm"
+New-AzVm `
+-ResourceGroupName $resourceGroupName `
+-Name "matebox2" `
+-Location $location `
+-image $vmImage `
+-size $vmSize `
+-Zone $zone2 `
+-SubnetName $subnetName `
+-VirtualNetworkName $virtualNetworkName `
+-SecurityGroupName $networkSecurityGroupName `
+-SshKeyName $sshKeyName
