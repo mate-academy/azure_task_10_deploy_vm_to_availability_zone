@@ -41,15 +41,15 @@ In this task, you will need to write and run a Powershell script, which deploys 
     
     - In the script, you should assume that you are already logged in to Azure and using the correct subscription (don't use commands 'Connect-AzAccount' and 'Set-AzContext', if needed — just run them on your computer before running the script). 
 
-    - Use any region you want, for example `uksouth`. 
+    - Use any region you want, for example `uksouth`.
 
-    - Script already has code that deploys a single VM with no infrastructure redundancy. Update the code to deploy two VMs into two distinct availability zones. Check the documentation of the [New-AzVm](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-11.5.0) comandlet to learn how to set an availability zone during VM creation. 
-    
-    - Both VMs should be deployed to the `default` subnet of the virtual network `vnet`, use network security group `defaultnsg`, and use ssh key `linuxboxsshkey` (check the documentation of [New-AzVm](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-11.5.0)—it allows you to specify the names of those resources as comandlet parameters). 
+    - Script already has code that deploys a single VM with no infrastructure redundancy. Update the code to deploy two VMs into two distinct availability zones. Check the documentation of the [New-AzVm](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-11.5.0) comandlet to learn how to set an availability zone during VM creation.
+
+    - Both VMs should be deployed to the `default` subnet of the virtual network `vnet`, use network security group `defaultnsg`, and use ssh key `linuxboxsshkey` (check the documentation of [New-AzVm](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-11.5.0)—it allows you to specames of those resources as comandlet parameters).
 
     - VMs should use images with the friendly name `Ubuntu2204` and size `Standard_B1s`.
 
-    - Note that in this task, you are not required to deploy a public IP resource for the VMs. 
+    - Note that in this task, you are not required to deploy a public IP resource for the VMs.
 
 2. When the script is ready, run it to deploy resources to your subscription. 
 
@@ -115,15 +115,15 @@ If you are a Windows user, before running this command, please also run the foll
 
 ## Requirements
 
-In this task, you will need to write and run a Powershell script, which deploys 2 Virtual Machines across 2 distinct availability zones: 
+In this task, you will need to write and run a Powershell script, which deploys 2 Virtual Machines across 2 distinct availability zones:
 
 1. Write your script code to the file 'task.ps1' in this repository:
-    
-    - In the script, you should assume that you are already logged in to Azure and using the correct subscription (don't use commands 'Connect-AzAccount' and 'Set-AzContext', if needed - just run them on your computer before running the script). 
+
+    - In the script, you should assume that you are already logged in to Azure and using the correct subscription (don't use commands 'Connect-AzAccount' and 'Set-AzContext', if needed - just run them on your computer before running the script).
 
     - Use any region you want, for example `uksouth`. 
 
-    - Script already has code that deploys a single VM with no infrastructure redundancy. Update the code to deploy two VMs into two distinct availability zones. Check the documentation of the [New-AzVm](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-11.5.0) comandlet to learn how to set an availability zone during VM creation. 
+    - Script already has code that deploys a single VM with no infrastructure redundancy. Update the code to deploy two VMs into two distinct availability zones. Check the documentation of the [New-AzVm](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-11.5.0) comandlet to learn how to set an availability zone during VM creation.
     
     - Both VMs should be deployed to the `default` subnet of the virtual network `vnet`, use network security group `defaultnsg`, and use ssh key `linuxboxsshkey` (check the documentation of [New-AzVm](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-11.5.0)—it allows you to specify the names of those resources as comandlet parameters). 
 
