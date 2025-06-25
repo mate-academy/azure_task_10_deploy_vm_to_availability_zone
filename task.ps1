@@ -9,7 +9,7 @@ $sshKeyName = "linuxboxsshkey"
 $sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
 $vmName1 = "matebox"
 $vmName2 = "matebox-1"
-$vmImage = "Ubuntu2204"
+$vmImage = "UbuntuLTS"
 $vmSize = "Standard_B1s"
 
 Write-Host "Creating a resource group $resourceGroupName ..."
