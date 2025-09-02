@@ -7,9 +7,14 @@ $vnetAddressPrefix = "10.0.0.0/16"
 $subnetAddressPrefix = "10.0.0.0/24"
 $sshKeyName = "linuxboxsshkey"
 $sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
-$vmName = "matebox"
+$vmName1 = "matebox1"
+$vmName2 = "matebox2"
 $vmImage = "Ubuntu2204"
 $vmSize = "Standard_B1s"
+$publicIpAddressName1 = "linuxboxpip1"
+$publicIpAddressName2 = "linuxboxpip2"
+$publicIpDnsLabel1 = "matebox-$((Get-Random).ToString().Substring(0, 6) )"
+$publicIpDnsLabel2 = "matebox-$((Get-Random).ToString().Substring(0, 6) )"
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -24,23 +29,34 @@ New-AzVirtualNetwork -Name $virtualNetworkName -ResourceGroupName $resourceGroup
 
 New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey $sshKeyPublicKey
 
-# Take a note that in this task VMs are deployed without public IPs and you won't be able
-# to connect to them - that's on purpose! The "free" Public IP resource (Basic SKU,
-# dynamic IP allocation) can't be deployed to the availability zone, and therefore can't 
-# be attached to the VM. Don't trust me - test it yourself! 
-# If you want to get a VM with public IP deployed to the availability zone - you need to use 
-# Standard public IP SKU (which you will need to pay for, it is not included in the free account)
-# and set same zone you would set on the VM, but this is not required in this task. 
-# New-AzPublicIpAddress -Name $publicIpAddressName -ResourceGroupName $resourceGroupName -Location $location -Sku Basic -AllocationMethod Dynamic -DomainNameLabel "random32987"
+Write-Host "Creating a public IP address $publicIpAddressName ..."
+New-AzPublicIpAddress -Name $publicIpAddressName1 -ResourceGroupName $resourceGroupName -Location $location -Sku Standard -AllocationMethod Static -DomainNameLabel $publicIpDnsLabel1 -Zone "1"
+New-AzPublicIpAddress -Name $publicIpAddressName2 -ResourceGroupName $resourceGroupName -Location $location -Sku Standard -AllocationMethod Static -DomainNameLabel $publicIpDnsLabel2 -Zone "2"
 
+Write-Host "Creating VM 1 in Zone 1 ..."
 New-AzVm `
 -ResourceGroupName $resourceGroupName `
--Name $vmName `
+-Name $vmName1 `
 -Location $location `
 -image $vmImage `
 -size $vmSize `
 -SubnetName $subnetName `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
-# -PublicIpAddressName $publicIpAddressName
+-SshKeyName $sshKeyName `
+-Zone "1" `
+-PublicIpAddressName $publicIpAddressName1
+
+Write-Host "Creating VM 2 in Zone 2 ..."
+New-AzVm `
+-ResourceGroupName $resourceGroupName `
+-Name $vmName2 `
+-Location $location `
+-image $vmImage `
+-size $vmSize `
+-SubnetName $subnetName `
+-VirtualNetworkName $virtualNetworkName `
+-SecurityGroupName $networkSecurityGroupName `
+-SshKeyName $sshKeyName `
+-Zone "2" `
+-PublicIpAddressName $publicIpAddressName2
