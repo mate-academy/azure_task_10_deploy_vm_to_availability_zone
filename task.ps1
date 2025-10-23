@@ -68,18 +68,17 @@ function New-ZonalVm {
     [string]$Zone
   )
   if (-not (Get-AzVM -Name $Name -ResourceGroupName $Rg -ErrorAction SilentlyContinue)) {
-    New-AzVM `
-      -ResourceGroupName $Rg `
-      -Location $Location `
-      -Name $Name `
-      -Image $Image `
-      -Size $VmSize `
-      -VirtualNetworkName $Vnet `
-      -SubnetName $Subnet `
-      -SecurityGroupName $Nsg `
-      -SshKeyName $SshRes `
-      -Zone $Zone `
-      -OpenPorts 22 | Out-Null
+New-AzVM `
+  -ResourceGroupName $Rg `
+  -Location $Location `
+  -Name $Name `
+  -Image $Image `
+  -Size $VmSize `
+  -VirtualNetworkName $Vnet `
+  -SubnetName $Subnet `
+  -SecurityGroupName $Nsg `
+  -SshKeyName $SshRes `
+  -Zone $Zone | Out-Null
   } else {
     Write-Host "ℹ️  VM '$Name' already exists — skip."
   }
