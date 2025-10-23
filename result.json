@@ -1,0 +1,12 @@
+[
+  {
+    "Name": "matebox-az1",
+    "Zone": "1",
+    "Location": "uksouth"
+  },
+  {
+    "Name": "matebox-az2",
+    "Zone": "2",
+    "Location": "uksouth"
+  }
+]
