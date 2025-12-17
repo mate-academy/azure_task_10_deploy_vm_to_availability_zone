@@ -18,6 +18,7 @@ $sshKeyPublicKey = (Get-Content -Raw "/root/.ssh/mate_azure_vm.pub").Trim()
 $vmNames = @("matebox-z1", "matebox-z2")
 $vmZones = @("1", "2")
 $vmSize = "Standard_B1s"
+$vmImage = "Ubuntu2204"   # <-- ВАЖНО: friendly name
 
 # admin-учетка нужна для создания VM (даже если вход по SSH-ключу)
 $adminUsername = "azureuser"
@@ -29,7 +30,7 @@ function Invoke-WithRetry {
   param(
     [Parameter(Mandatory=$true)][ScriptBlock]$Script,
     [int]$Attempts = 4,
-    [int]$DelaySeconds = 10
+    [int]$DelaySeconds = 12
   )
   for ($a=1; $a -le $Attempts; $a++) {
     try { return & $Script }
@@ -81,50 +82,33 @@ if (-not $vnet) {
   }
 }
 
-$subnetId = ($vnet.Subnets | Where-Object { $_.Name -eq $subnetName }).Id
-if (-not $subnetId) { throw "SubnetId is empty. Check that subnet '$subnetName' exists in VNet '$virtualNetworkName'." }
-
 Write-Host "Creating / updating SSH key resource $sshKeyName ..."
 $existingKey = Get-AzSshKey -ResourceGroupName $resourceGroupName -Name $sshKeyName -ErrorAction SilentlyContinue
 if (-not $existingKey) {
   New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey $sshKeyPublicKey | Out-Null
 }
 
-Start-Sleep 10  # чтобы ARM “успел” увидеть ресурсы
+Start-Sleep 8
 
 for ($i = 0; $i -lt $vmNames.Count; $i++) {
   $name = $vmNames[$i]
   $zone = $vmZones[$i]
 
-  Write-Host "Creating NIC for $name (no Public IP) ..."
-  $nicName = "$name-nic"
-
-  $oldNic = Get-AzNetworkInterface -ResourceGroupName $resourceGroupName -Name $nicName -ErrorAction SilentlyContinue
-  if ($oldNic) { Remove-AzNetworkInterface -ResourceGroupName $resourceGroupName -Name $nicName -Force }
-
-  $nic = New-AzNetworkInterface `
-    -Name $nicName `
-    -ResourceGroupName $resourceGroupName `
-    -Location $location `
-    -SubnetId $subnetId `
-    -NetworkSecurityGroupId $nsg.Id
-
-  Write-Host "Creating VM $name in zone $zone ..."
-  $vm = New-AzVMConfig -VMName $name -VMSize $vmSize
-
-  $vm = Set-AzVMOperatingSystem -VM $vm -Linux -ComputerName $name -Credential $cred -DisablePasswordAuthentication
-
-  $vm = Add-AzVMSshPublicKey -VM $vm -KeyData $sshKeyPublicKey -Path "/home/$adminUsername/.ssh/authorized_keys"
-
-  $vm = Set-AzVMSourceImage -VM $vm -PublisherName "Canonical" -Offer "0001-com-ubuntu-server-jammy" -Skus "22_04-lts-gen2" -Version "latest"
-
-  $vm = Add-AzVMNetworkInterface -VM $vm -Id $nic.Id -Primary
-
-  # (опционально) отключаем boot diagnostics
-  try { $vm = Set-AzVMBootDiagnostic -VM $vm -Disable } catch { }
-
-  Invoke-WithRetry -Attempts 4 -DelaySeconds 12 -Script {
-    New-AzVM -ResourceGroupName $resourceGroupName -Location $location -VM $vm -Zone $zone -Verbose | Out-Null
+  Write-Host "Creating VM $name in zone $zone using image $vmImage ..."
+  Invoke-WithRetry -Attempts 4 -DelaySeconds 15 -Script {
+    New-AzVM `
+      -ResourceGroupName $resourceGroupName `
+      -Name $name `
+      -Location $location `
+      -Zone $zone `
+      -Image $vmImage `
+      -Size $vmSize `
+      -Credential $cred `
+      -VirtualNetworkName $virtualNetworkName `
+      -SubnetName $subnetName `
+      -SecurityGroupName $networkSecurityGroupName `
+      -SshKeyName $sshKeyName `
+      -Verbose | Out-Null
   }
 }
 
