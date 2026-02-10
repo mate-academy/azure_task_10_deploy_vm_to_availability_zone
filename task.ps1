@@ -6,7 +6,12 @@ $subnetName = "default"
 $vnetAddressPrefix = "10.0.0.0/16"
 $subnetAddressPrefix = "10.0.0.0/24"
 $sshKeyName = "linuxboxsshkey"
-$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
+$sshPath = "~/.ssh/id_rsa.pub"
+if (!(Test-Path -Path $sshPath)) {
+    Write-Host "SSH key not found"
+    exit 1
+}
+$sshKeyPublicKey = Get-Content $sshPath -Raw
 $vmName = "matebox"
 $vmImage = "Ubuntu2204"
 $vmSize = "Standard_B2ats_v2" #B1 from task is not available anymore for free tier, B2ats_v2 is the closest one available
