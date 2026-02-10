@@ -1,4 +1,4 @@
-$location = "uksouth"
+$location = "norwayeast"
 $resourceGroupName = "mate-azure-task-10"
 $networkSecurityGroupName = "defaultnsg"
 $virtualNetworkName = "vnet"
@@ -6,10 +6,15 @@ $subnetName = "default"
 $vnetAddressPrefix = "10.0.0.0/16"
 $subnetAddressPrefix = "10.0.0.0/24"
 $sshKeyName = "linuxboxsshkey"
-$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
+$sshPath = "~/.ssh/id_rsa.pub"
+if (!(Test-Path -Path $sshPath)) {
+    Write-Host "SSH key not found"
+    exit 1
+}
+$sshKeyPublicKey = Get-Content $sshPath -Raw
 $vmName = "matebox"
 $vmImage = "Ubuntu2204"
-$vmSize = "Standard_B1s"
+$vmSize = "Standard_B1s" #B1 from task is not available anymore for free tier, B2ats_v2 is the closest one available
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -35,12 +40,24 @@ New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey 
 
 New-AzVm `
 -ResourceGroupName $resourceGroupName `
--Name $vmName `
+-Name "$vmName-zn-1" `
 -Location $location `
 -image $vmImage `
 -size $vmSize `
 -SubnetName $subnetName `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
-# -PublicIpAddressName $publicIpAddressName
+-SshKeyName $sshKeyName `
+-Zone 1
+
+New-AzVm `
+-ResourceGroupName $resourceGroupName `
+-Name "${vmName}-zn-2" `
+-Location $location `
+-image $vmImage `
+-size $vmSize `
+-SubnetName $subnetName `
+-VirtualNetworkName $virtualNetworkName `
+-SecurityGroupName $networkSecurityGroupName `
+-SshKeyName $sshKeyName `
+-Zone 2
