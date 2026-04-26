@@ -1,4 +1,4 @@
-$location = "uksouth"
+$location = "centralindia"
 $resourceGroupName = "mate-azure-task-10"
 $networkSecurityGroupName = "defaultnsg"
 $virtualNetworkName = "vnet"
@@ -6,10 +6,12 @@ $subnetName = "default"
 $vnetAddressPrefix = "10.0.0.0/16"
 $subnetAddressPrefix = "10.0.0.0/24"
 $sshKeyName = "linuxboxsshkey"
-$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
-$vmName = "matebox"
-$vmImage = "Ubuntu2204"
-$vmSize = "Standard_B1s"
+$sshKeyPublicKey = Get-Content "$HOME\.ssh\id_ed25519.pub"
+$vmName = "matebox1"
+$vmImage = "Ubuntu2404"
+$vmSize = "Standard_B2ats_v2"
+$vmName2 = "matebox2"
+
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -37,10 +39,23 @@ New-AzVm `
 -ResourceGroupName $resourceGroupName `
 -Name $vmName `
 -Location $location `
+-Zone "1" `
 -image $vmImage `
 -size $vmSize `
 -SubnetName $subnetName `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
-# -PublicIpAddressName $publicIpAddressName
+-SshKeyName $sshKeyName
+ -PublicIpAddressName $publicIpAddressName
+
+New-AzVm `
+-ResourceGroupName $resourceGroupName `
+-Name $vmName2 `
+-Location $location `
+-Zone "3" `
+-image $vmImage `
+-size $vmSize `
+-SubnetName $subnetName `
+-VirtualNetworkName $virtualNetworkName `
+-SecurityGroupName $networkSecurityGroupName `
+-SshKeyName $sshKeyName
