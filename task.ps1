@@ -1,4 +1,4 @@
-$location = "uksouth"
+$location = "polandcentral"
 $resourceGroupName = "mate-azure-task-10"
 $networkSecurityGroupName = "defaultnsg"
 $virtualNetworkName = "vnet"
@@ -6,10 +6,17 @@ $subnetName = "default"
 $vnetAddressPrefix = "10.0.0.0/16"
 $subnetAddressPrefix = "10.0.0.0/24"
 $sshKeyName = "linuxboxsshkey"
-$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
+$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub"
 $vmName = "matebox"
 $vmImage = "Ubuntu2204"
-$vmSize = "Standard_B1s"
+$vmSize = "Standard_B2ts_v2"
+$password_path = "./securepass.txt"
+$username_path = "./secureuser.txt"
+
+
+$password = Get-Content $password_path | ConvertTo-SecureString
+$username = Get-Content $username_path | ConvertTo-SecureString
+$cred = New-Object System.Management.Automation.PSCredential ($username, $password)
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -32,15 +39,20 @@ New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey 
 # Standard public IP SKU (which you will need to pay for, it is not included in the free account)
 # and set same zone you would set on the VM, but this is not required in this task. 
 # New-AzPublicIpAddress -Name $publicIpAddressName -ResourceGroupName $resourceGroupName -Location $location -Sku Basic -AllocationMethod Dynamic -DomainNameLabel "random32987"
-
+$zones = @(1,2)
+foreach ($zone in $zones) {
+$name = "$vmName-$zone"
 New-AzVm `
 -ResourceGroupName $resourceGroupName `
--Name $vmName `
+-Name $name `
 -Location $location `
 -image $vmImage `
 -size $vmSize `
 -SubnetName $subnetName `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
+-SshKeyName $sshKeyName `
+-Zone $zone `
+-Credential $cred
 # -PublicIpAddressName $publicIpAddressName
+}
