@@ -5,7 +5,7 @@ param(
 
 # default script values
 $rgName = "mate-azure-task-10"
-$taskName = "task9"
+$taskName = "task10"
 
 $containerName = "task-artifacts"
 $resourcesTemplateName = "exported-template.json"
@@ -49,6 +49,12 @@ if (-not (Test-Path "$tempFolderPath")) {
 
 Write-Output "Exporting resources template"
 Export-AzResourceGroup -ResourceGroupName $rgName -Path "$tempFolderPath/$resourcesTemplateName" -Force
+
+$exportJson = Get-Content -Path "$tempFolderPath/$resourcesTemplateName" -Raw | ConvertFrom-Json
+$vmResources = @( $exportJson.resources | Where-Object { $_.type -eq 'Microsoft.Compute/virtualMachines' } )
+if ($vmResources.Count -ne 2) {
+    throw "Export has $($vmResources.Count) Microsoft.Compute/virtualMachines resource(s); expected 2. Deploy both zonal VMs with task.ps1 (resource group '$rgName'), then run this script again. If resources were deleted in Azure, redeploy before generating artifacts."
+}
 
 Write-Output "Uploading resources template"
 $ResourcesTemplateBlob = @{
