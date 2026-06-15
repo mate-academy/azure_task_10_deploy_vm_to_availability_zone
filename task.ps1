@@ -6,10 +6,13 @@ $subnetName = "default"
 $vnetAddressPrefix = "10.0.0.0/16"
 $subnetAddressPrefix = "10.0.0.0/24"
 $sshKeyName = "linuxboxsshkey"
-$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
-$vmName = "matebox"
+$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub"
 $vmImage = "Ubuntu2204"
 $vmSize = "Standard_B1s"
+
+# VM Names and Availability Zones
+$vmNames = @("matebox-az1", "matebox-az2")
+$availabilityZones = @("1", "2")
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -24,23 +27,36 @@ New-AzVirtualNetwork -Name $virtualNetworkName -ResourceGroupName $resourceGroup
 
 New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey $sshKeyPublicKey
 
-# Take a note that in this task VMs are deployed without public IPs and you won't be able
-# to connect to them - that's on purpose! The "free" Public IP resource (Basic SKU,
-# dynamic IP allocation) can't be deployed to the availability zone, and therefore can't 
-# be attached to the VM. Don't trust me - test it yourself! 
-# If you want to get a VM with public IP deployed to the availability zone - you need to use 
-# Standard public IP SKU (which you will need to pay for, it is not included in the free account)
-# and set same zone you would set on the VM, but this is not required in this task. 
-# New-AzPublicIpAddress -Name $publicIpAddressName -ResourceGroupName $resourceGroupName -Location $location -Sku Basic -AllocationMethod Dynamic -DomainNameLabel "random32987"
+# Create VMs in distinct availability zones
+for ($i = 0; $i -lt $vmNames.Count; $i++)
+{
+    $vmName = $vmNames[$i]
+    $az = $availabilityZones[$i]
 
-New-AzVm `
--ResourceGroupName $resourceGroupName `
--Name $vmName `
--Location $location `
--image $vmImage `
--size $vmSize `
--SubnetName $subnetName `
--VirtualNetworkName $virtualNetworkName `
--SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
-# -PublicIpAddressName $publicIpAddressName
+    # Create a Network Interface for each VM
+    $networkInterfaceName = "nic-$vmName"
+
+    Write-Host "Creating a network interface $networkInterfaceName for $vmName in AZ $az ..."
+    $networkInterface = New-AzNetworkInterface `
+        -Name $networkInterfaceName `
+        -ResourceGroupName $resourceGroupName `
+        -Location $location `
+        -SubnetId (Get-AzVirtualNetwork -Name $virtualNetworkName -ResourceGroupName $resourceGroupName).Subnets[0].Id `
+        -NetworkSecurityGroupId (Get-AzNetworkSecurityGroup -ResourceGroupName $resourceGroupName -Name $networkSecurityGroupName).Id
+
+    # Create the VM
+    Write-Host "Creating a virtual machine $vmName in AZ $az ..."
+    New-AzVM `
+        -ResourceGroupName $resourceGroupName `
+        -Name $vmName `
+        -Location $location `
+        -Image $vmImage `
+        -Zone $az `
+        -Size $vmSize `
+        -SubnetName $subnetName `
+        -VirtualNetworkName $virtualNetworkName `
+        -SecurityGroupName $networkSecurityGroupName `
+        -SshKeyName $sshKeyName `
+        # -NetworkInterface $networkInterface `
+        # -OpenPorts 22, 8080
+}
