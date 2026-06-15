@@ -37,10 +37,24 @@ New-AzVm `
 -ResourceGroupName $resourceGroupName `
 -Name $vmName `
 -Location $location `
+-Zone "1" `
 -image $vmImage `
 -size $vmSize `
 -SubnetName $subnetName `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
+-SshKeyName $sshKeyName
+# -PublicIpAddressName $publicIpAddressName
+
+New-AzVm `
+-ResourceGroupName $resourceGroupName `
+-Name "${vmName}2" `
+-Location $location `
+-Zone "2" `
+-image $vmImage `
+-size $vmSize `
+-SubnetName $subnetName `
+-VirtualNetworkName $virtualNetworkName `
+-SecurityGroupName $networkSecurityGroupName `
+-SshKeyName $sshKeyName
 # -PublicIpAddressName $publicIpAddressName
