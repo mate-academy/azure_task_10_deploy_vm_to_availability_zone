@@ -2,7 +2,7 @@
 
 When you learn about the SLA and availability, you know that with a single VM in Azure, you are guaranteed to have only 99.9% of the VM uptime. That means your app can be unavailable for more than 40 minutes a week, and you won't get any refunds or discounts! Luckily, there are several options you can use to affect the SLA for your VM infrastructure, and today, you will explore one of them—availability zones. 
 
-You will get a 99.99% uptime SLA for two VMs deployed to two distinct availability zones. This means both VMs can be unavailable simultaneously for no longer than 4 minutes each month. In this task, you will practice deploying VMs to availability zones. 
+You will get a 99.99% uptime SLA for two VMs deployed to two distinct availability zones. This means both VMs can be unavailable simultaneously for no longer than 4 minutes each month. In this task, you will practice deploying VMs to availability zones.
 
 ## Prerequisites
 
