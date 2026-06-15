@@ -1,0 +1,16 @@
+{
+  "vm_info": [
+    {
+      "name": "matebox-az1",
+      "fqdn": "matebox-az1-284eac.uksouth.cloudapp.azure.com",
+      "private_ip": "10.0.0.4"
+    },
+    {
+      "name": "matebox-az2",
+      "fqdn": "matebox-az2-81844f.uksouth.cloudapp.azure.com",
+      "private_ip": "10.0.0.5"
+    }
+  ],
+  "resource_group": "mate-azure-task-10",
+  "location": "uksouth"
+}
