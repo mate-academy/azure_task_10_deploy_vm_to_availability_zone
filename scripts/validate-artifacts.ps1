@@ -125,12 +125,12 @@ if ($virtualMachines) {
 
 foreach ($virtualMachine in $virtualMachines) { 
 
-    if (($virtualMachine.zones -eq 1) -or ($virtualMachine.zones -eq 2) -or ($virtualMachine.zones -eq 3) ) { 
+    if (($virtualMachine.zones -eq 1) -or ($virtualMachine.zones -eq 2) -or ($virtualMachine.zones -eq 3) ) {
         Write-Output "`u{2705} Checked if virtual machine has the availability zone assigned - OK"
     } else { 
         Write-Output `u{1F914}
         throw "Unable to verify that VMs has availability zone assigned. Please make sure that you are assigning the availabilty zone during the VM creation with parameter '-Zone' and try again."
-    } 
+    }
 
     if ($virtualMachine.properties.osProfile.linuxConfiguration.ssh.publicKeys.keyData -eq $sshKey.properties.publicKey) { 
         Write-Output "`u{2705} Checked if virtual machine uses the public ssh key 'linuxboxsshkey' - OK"
@@ -160,7 +160,7 @@ foreach ($virtualMachine in $virtualMachines) {
     }
 }
 
-if ($virtualMachines[0].zones -ne $virtualMachines[1].zones) { 
+if ($virtualMachines[0].zones -ne $virtualMachines[1].zones) {
     Write-Output "`u{2705} Checked Virtual Machines deployed across different availability zones - OK"
 } else { 
     Write-Output `u{1F914}
