@@ -1,4 +1,4 @@
-$location = "uksouth"
+$location = "switzerlandnorth"
 $resourceGroupName = "mate-azure-task-10"
 $networkSecurityGroupName = "defaultnsg"
 $virtualNetworkName = "vnet"
@@ -6,10 +6,16 @@ $subnetName = "default"
 $vnetAddressPrefix = "10.0.0.0/16"
 $subnetAddressPrefix = "10.0.0.0/24"
 $sshKeyName = "linuxboxsshkey"
-$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
-$vmName = "matebox"
+$publicKeyPath = Join-Path $HOME '.ssh/ssh-key-ubuntu.pub'
+$sshKeyPublicKey = Get-Content -Path $publicKeyPath -Raw
+$vm1Name = "matebox-1"
+$vm2Name = "matebox-2"
 $vmImage = "Ubuntu2204"
 $vmSize = "Standard_B1s"
+
+if (-not (Test-Path $publicKeyPath)) {
+    throw "Error: The SSH public key file was not found at path: '$publicKeyPath'. Please create it."
+}
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -35,12 +41,25 @@ New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey 
 
 New-AzVm `
 -ResourceGroupName $resourceGroupName `
--Name $vmName `
+-Name $vm1Name `
 -Location $location `
 -image $vmImage `
 -size $vmSize `
 -SubnetName $subnetName `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
+-SshKeyName $sshKeyName `
+-Zone '1'
 # -PublicIpAddressName $publicIpAddressName
+
+New-AzVm `
+-ResourceGroupName $resourceGroupName `
+-Name $vm2Name `
+-Location $location `
+-image $vmImage `
+-size $vmSize `
+-SubnetName $subnetName `
+-VirtualNetworkName $virtualNetworkName `
+-SecurityGroupName $networkSecurityGroupName `
+-SshKeyName $sshKeyName `
+-Zone '2'

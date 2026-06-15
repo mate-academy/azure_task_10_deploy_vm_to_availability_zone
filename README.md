@@ -6,7 +6,7 @@ You will get a 99.99% uptime SLA for two VMs deployed to two distinct availabili
 
 ## Prerequisites
 
-Before completing any task in the module, make sure that you followed all the steps described in the **Environment Setup** topic, in particular: 
+Before completing any task in the module, make sure that you followed all the steps described in the **Environment Setup** topic, in particular:
 
 1. Ensure you have an [Azure](https://azure.microsoft.com/en-us/free/) account and subscription.
 
@@ -57,7 +57,7 @@ In this task, you will need to write and run a Powershell script, which deploys 
 
 4. Test yourself using the script `scripts/validate-artifacts.ps1`.
 
-5. Make sure that changes to both `task.ps1` and `result.json` are committed to the repo, and submit the solution for review. 
+5. Make sure that changes to both `task.ps1` and `result.json` are committed to the repo, and submit the solution for review.
 
 6. When the solution is validated, delete the resources you deployed with the PowerShell script—you won't need them for the next tasks. 
 
