@@ -42,5 +42,19 @@ New-AzVm `
 -SubnetName $subnetName `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
-# -PublicIpAddressName $publicIpAddressName
+-SshKeyName $sshKeyName `
+-Zone "1"
+
+$vmName2 = "matebox2"
+New-AzVm `
+-ResourceGroupName $resourceGroupName `
+-Name $vmName2 `
+-Location $location `
+-image $vmImage `
+-size $vmSize `
+-SubnetName $subnetName `
+-VirtualNetworkName $virtualNetworkName `
+-SecurityGroupName $networkSecurityGroupName `
+-SshKeyName $sshKeyName `
+-Zone "2"
+
