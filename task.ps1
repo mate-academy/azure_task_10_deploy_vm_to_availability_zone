@@ -1,46 +1,70 @@
-$location = "uksouth"
-$resourceGroupName = "mate-azure-task-10"
-$networkSecurityGroupName = "defaultnsg"
-$virtualNetworkName = "vnet"
-$subnetName = "default"
-$vnetAddressPrefix = "10.0.0.0/16"
-$subnetAddressPrefix = "10.0.0.0/24"
-$sshKeyName = "linuxboxsshkey"
-$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
-$vmName = "matebox"
-$vmImage = "Ubuntu2204"
-$vmSize = "Standard_B1s"
+# Script to deploy 2 VMs across 2 availability zones with SSH key resource
 
-Write-Host "Creating a resource group $resourceGroupName ..."
-New-AzResourceGroup -Name $resourceGroupName -Location $location
+$location          = "italynorth"
+$resourceGroupName = "mate-azure-task-10"
+
+$networkSecurityGroupName = "defaultnsg"
+$virtualNetworkName       = "vnet"
+$subnetName               = "default"
+
+$sshKeyName = "linuxboxsshkey"
+
+$vmSize = "Standard_B1s"
+$vmImage = "Ubuntu2204"
+
+Write-Host "Creating a resource group $resourceGroupName in $location ..."
+New-AzResourceGroup `
+    -Name $resourceGroupName `
+    -Location $location `
+    -Force | Out-Null
 
 Write-Host "Creating a network security group $networkSecurityGroupName ..."
-$nsgRuleSSH = New-AzNetworkSecurityRuleConfig -Name SSH  -Protocol Tcp -Direction Inbound -Priority 1001 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 22 -Access Allow;
-$nsgRuleHTTP = New-AzNetworkSecurityRuleConfig -Name HTTP  -Protocol Tcp -Direction Inbound -Priority 1002 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 8080 -Access Allow;
-New-AzNetworkSecurityGroup -Name $networkSecurityGroupName -ResourceGroupName $resourceGroupName -Location $location -SecurityRules $nsgRuleSSH, $nsgRuleHTTP
+$nsg = New-AzNetworkSecurityGroup `
+    -Name $networkSecurityGroupName `
+    -ResourceGroupName $resourceGroupName `
+    -Location $location
 
-$subnet = New-AzVirtualNetworkSubnetConfig -Name $subnetName -AddressPrefix $subnetAddressPrefix
-New-AzVirtualNetwork -Name $virtualNetworkName -ResourceGroupName $resourceGroupName -Location $location -AddressPrefix $vnetAddressPrefix -Subnet $subnet
+Write-Host "Creating a virtual network $virtualNetworkName and subnet $subnetName ..."
+$subnetConfig = New-AzVirtualNetworkSubnetConfig `
+    -Name $subnetName `
+    -AddressPrefix "10.0.0.0/24" `
+    -NetworkSecurityGroup $nsg
 
-New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey $sshKeyPublicKey
+$vnet = New-AzVirtualNetwork `
+    -Name $virtualNetworkName `
+    -ResourceGroupName $resourceGroupName `
+    -Location $location `
+    -AddressPrefix "10.0.0.0/16" `
+    -Subnet $subnetConfig
 
-# Take a note that in this task VMs are deployed without public IPs and you won't be able
-# to connect to them - that's on purpose! The "free" Public IP resource (Basic SKU,
-# dynamic IP allocation) can't be deployed to the availability zone, and therefore can't 
-# be attached to the VM. Don't trust me - test it yourself! 
-# If you want to get a VM with public IP deployed to the availability zone - you need to use 
-# Standard public IP SKU (which you will need to pay for, it is not included in the free account)
-# and set same zone you would set on the VM, but this is not required in this task. 
-# New-AzPublicIpAddress -Name $publicIpAddressName -ResourceGroupName $resourceGroupName -Location $location -Sku Basic -AllocationMethod Dynamic -DomainNameLabel "random32987"
+Write-Host "Creating SSH public key resource $sshKeyName ..."
+$sshPublicKey = Get-Content -Path "$HOME/.ssh/id_rsa.pub" -Raw
 
-New-AzVm `
--ResourceGroupName $resourceGroupName `
--Name $vmName `
--Location $location `
--image $vmImage `
--size $vmSize `
--SubnetName $subnetName `
--VirtualNetworkName $virtualNetworkName `
--SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
-# -PublicIpAddressName $publicIpAddressName
+New-AzSshKey `
+    -Name $sshKeyName `
+    -ResourceGroupName $resourceGroupName `
+    -Location $location `
+    -PublicKey $sshPublicKey | Out-Null
+
+$commonVmParams = @{
+    ResourceGroupName  = $resourceGroupName
+    Location           = $location
+    Image              = $vmImage
+    Size               = $vmSize
+    VirtualNetworkName = $virtualNetworkName
+    SubnetName         = $subnetName
+    SecurityGroupName  = $networkSecurityGroupName
+    SshKeyName         = $sshKeyName
+}
+
+Write-Host "Creating VM matebox-1 in Availability Zone 1 ..."
+New-AzVm @commonVmParams `
+    -Name "matebox-1" `
+    -Zone 1
+
+Write-Host "Creating VM matebox-2 in Availability Zone 2 ..."
+New-AzVm @commonVmParams `
+    -Name "matebox-2" `
+    -Zone 2
+
+Write-Host "Deployment complete!"
