@@ -1,1 +1,3 @@
 temp/*
+testRegion.ps1
+scripts/validate-artifacts.ps1
