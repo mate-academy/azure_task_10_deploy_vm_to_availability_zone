@@ -1,4 +1,4 @@
-$location = "uksouth"
+$location = "westeurope"
 $resourceGroupName = "mate-azure-task-10"
 $networkSecurityGroupName = "defaultnsg"
 $virtualNetworkName = "vnet"
@@ -6,10 +6,11 @@ $subnetName = "default"
 $vnetAddressPrefix = "10.0.0.0/16"
 $subnetAddressPrefix = "10.0.0.0/24"
 $sshKeyName = "linuxboxsshkey"
-$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
+$sshKeyPublicKey = Get-Content "~/.ssh/id_ed25519.pub"
 $vmName = "matebox"
+$vmName2 = "matebox2"
 $vmImage = "Ubuntu2204"
-$vmSize = "Standard_B1s"
+$vmSize = "Standard_D2ads_v6asdsa"
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -33,14 +34,18 @@ New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey 
 # and set same zone you would set on the VM, but this is not required in this task. 
 # New-AzPublicIpAddress -Name $publicIpAddressName -ResourceGroupName $resourceGroupName -Location $location -Sku Basic -AllocationMethod Dynamic -DomainNameLabel "random32987"
 
-New-AzVm `
--ResourceGroupName $resourceGroupName `
--Name $vmName `
--Location $location `
--image $vmImage `
--size $vmSize `
--SubnetName $subnetName `
--VirtualNetworkName $virtualNetworkName `
--SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
-# -PublicIpAddressName $publicIpAddressName
+
+$commonParams = @{
+ResourceGroupName = $resourceGroupName
+Location = $location
+image = $vmImage
+size = $vmSize
+SubnetName = $subnetName
+VirtualNetworkName = $virtualNetworkName
+SecurityGroupName = $networkSecurityGroupName
+SshKeyName = $sshKeyName
+}
+
+New-AzVm -Name $vmName -Zone 1 @commonParams
+
+New-AzVm -Name $vmName2 -Zone 2 @commonParams
