@@ -43,7 +43,7 @@ In this task, you will need to write and run a Powershell script, which deploys 
 
     - Use any region you want, for example `uksouth`. 
 
-    - Script already has code that deploys a single VM with no infrastructure redundancy. Update the code to deploy two VMs into two distinct availability zones. Check the documentation of the [New-AzVm](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-11.5.0) comandlet to learn how to set an availability zone during VM creation. 
+    - Script already has code that deploys a single VM with no infrastructure redundancy. Update the code to deploy two VMs into two distinct availability zones. Check the documentation of the [New-AzVm](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-11.5.0) comandlet to learn how to set an availability zone during VM creation.
     
     - Both VMs should be deployed to the `default` subnet of the virtual network `vnet`, use network security group `defaultnsg`, and use ssh key `linuxboxsshkey` (check the documentation of [New-AzVm](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-11.5.0)—it allows you to specify the names of those resources as comandlet parameters). 
 
