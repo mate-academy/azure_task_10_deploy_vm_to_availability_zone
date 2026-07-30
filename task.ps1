@@ -1,4 +1,4 @@
-$location = "uksouth"
+$location = "denmarkeast"
 $resourceGroupName = "mate-azure-task-10"
 $networkSecurityGroupName = "defaultnsg"
 $virtualNetworkName = "vnet"
@@ -10,6 +10,10 @@ $sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub"
 $vmName = "matebox"
 $vmImage = "Ubuntu2204"
 $vmSize = "Standard_B1s"
+$zones = @("1", "2")
+$adminUsername = "azureuser"
+$adminPassword = ConvertTo-SecureString (New-Guid).Guid -AsPlainText -Force
+$cred = New-Object System.Management.Automation.PSCredential ($adminUsername, $adminPassword)
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -33,14 +37,18 @@ New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey 
 # and set same zone you would set on the VM, but this is not required in this task. 
 # New-AzPublicIpAddress -Name $publicIpAddressName -ResourceGroupName $resourceGroupName -Location $location -Sku Basic -AllocationMethod Dynamic -DomainNameLabel "random32987"
 
+for ($i = 0; $i -lt $zones.Count; $i++) {
 New-AzVm `
 -ResourceGroupName $resourceGroupName `
--Name $vmName `
+-Name "vm$($i + 1)" `
 -Location $location `
+-Zone $zones[$i] `
 -image $vmImage `
 -size $vmSize `
 -SubnetName $subnetName `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
+-SshKeyName $sshKeyName `
+-Credential $cred
 # -PublicIpAddressName $publicIpAddressName
+}
