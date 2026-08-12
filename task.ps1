@@ -1,15 +1,17 @@
-$location = "uksouth"
+$location = "denmarkeast"
 $resourceGroupName = "mate-azure-task-10"
 $networkSecurityGroupName = "defaultnsg"
 $virtualNetworkName = "vnet"
 $subnetName = "default"
 $vnetAddressPrefix = "10.0.0.0/16"
 $subnetAddressPrefix = "10.0.0.0/24"
+$vmUsername = "rodops"
 $sshKeyName = "linuxboxsshkey"
-$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
+$sshKeyPublicKey = Get-Content "~/.ssh/id_ed25519.pub"
 $vmName = "matebox"
 $vmImage = "Ubuntu2204"
 $vmSize = "Standard_B1s"
+$availabilityZones = @("1", "2")
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -26,21 +28,31 @@ New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey 
 
 # Take a note that in this task VMs are deployed without public IPs and you won't be able
 # to connect to them - that's on purpose! The "free" Public IP resource (Basic SKU,
-# dynamic IP allocation) can't be deployed to the availability zone, and therefore can't 
-# be attached to the VM. Don't trust me - test it yourself! 
-# If you want to get a VM with public IP deployed to the availability zone - you need to use 
+# dynamic IP allocation) can't be deployed to the availability zone, and therefore can't
+# be attached to the VM. Don't trust me - test it yourself!
+# If you want to get a VM with public IP deployed to the availability zone - you need to use
 # Standard public IP SKU (which you will need to pay for, it is not included in the free account)
-# and set same zone you would set on the VM, but this is not required in this task. 
+# and set same zone you would set on the VM, but this is not required in this task.
 # New-AzPublicIpAddress -Name $publicIpAddressName -ResourceGroupName $resourceGroupName -Location $location -Sku Basic -AllocationMethod Dynamic -DomainNameLabel "random32987"
 
-New-AzVm `
--ResourceGroupName $resourceGroupName `
--Name $vmName `
--Location $location `
--image $vmImage `
--size $vmSize `
--SubnetName $subnetName `
--VirtualNetworkName $virtualNetworkName `
--SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
-# -PublicIpAddressName $publicIpAddressName
+
+
+foreach ($zone in $availabilityZones) {
+    Write-Host "Creating a VM $vmName in zone $zone ..."
+    $vmNameWithZone = "$vmName-$zone"
+
+    New-AzVm `
+    -ResourceGroupName $resourceGroupName `
+    -Name $vmNameWithZone `
+    -Location $location `
+    -image $vmImage `
+    -size $vmSize `
+    -SubnetName $subnetName `
+    -VirtualNetworkName $virtualNetworkName `
+    -SecurityGroupName $networkSecurityGroupName `
+    -SshKeyName $sshKeyName `
+    -Zone $zone `
+    -Credential (New-Object PSCredential($vmUsername, (ConvertTo-SecureString "unused" -AsPlainText -Force)))
+    # -PublicIpAddressName $publicIpAddressName
+}
+
