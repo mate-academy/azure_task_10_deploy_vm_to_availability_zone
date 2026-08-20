@@ -1,4 +1,8 @@
-$location = "uksouth"
+# Using denmarkeast instead of the region from README: Standard_B2ats_v2 is
+# restricted (NotAvailableForSubscription) in availability zones in the regions
+# I have quota for (ukwest, canadacentral). It's available in all 3 zones in
+# denmarkeast without restrictions.
+$location = "denmarkeast"
 $resourceGroupName = "mate-azure-task-10"
 $networkSecurityGroupName = "defaultnsg"
 $virtualNetworkName = "vnet"
@@ -6,10 +10,11 @@ $subnetName = "default"
 $vnetAddressPrefix = "10.0.0.0/16"
 $subnetAddressPrefix = "10.0.0.0/24"
 $sshKeyName = "linuxboxsshkey"
-$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub" 
-$vmName = "matebox"
-$vmImage = "Ubuntu2204"
-$vmSize = "Standard_B1s"
+$sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub"
+$vmNameBase = "matebox-"
+$vmImage = "Ubuntu2404"
+$vmSize = "Standard_B2ats_v2"
+$vmAdminUsernameBase = "ponchik"
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -26,21 +31,31 @@ New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey 
 
 # Take a note that in this task VMs are deployed without public IPs and you won't be able
 # to connect to them - that's on purpose! The "free" Public IP resource (Basic SKU,
-# dynamic IP allocation) can't be deployed to the availability zone, and therefore can't 
-# be attached to the VM. Don't trust me - test it yourself! 
-# If you want to get a VM with public IP deployed to the availability zone - you need to use 
+# dynamic IP allocation) can't be deployed to the availability zone, and therefore can't
+# be attached to the VM. Don't trust me - test it yourself!
+# If you want to get a VM with public IP deployed to the availability zone - you need to use
 # Standard public IP SKU (which you will need to pay for, it is not included in the free account)
-# and set same zone you would set on the VM, but this is not required in this task. 
+# and set same zone you would set on the VM, but this is not required in this task.
 # New-AzPublicIpAddress -Name $publicIpAddressName -ResourceGroupName $resourceGroupName -Location $location -Sku Basic -AllocationMethod Dynamic -DomainNameLabel "random32987"
 
-New-AzVm `
--ResourceGroupName $resourceGroupName `
--Name $vmName `
--Location $location `
--image $vmImage `
--size $vmSize `
--SubnetName $subnetName `
--VirtualNetworkName $virtualNetworkName `
--SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
-# -PublicIpAddressName $publicIpAddressName
+$zones = @("1", "2")
+
+foreach ($zone in $zones) {
+  $vmName = $vmNameBase + $zone
+  Write-Host "Creating a VM $vmName in zone $zone ..."
+  $vmAdminUsername = $vmAdminUsernameBase + $zone
+
+  New-AzVm `
+    -ResourceGroupName $resourceGroupName `
+    -Name $vmName `
+    -Location $location `
+    -image $vmImage `
+    -size $vmSize `
+    -SubnetName $subnetName `
+    -VirtualNetworkName $virtualNetworkName `
+    -SecurityGroupName $networkSecurityGroupName `
+    -SshKeyName $sshKeyName `
+    -Zone $zone `
+    -Credential (New-Object System.Management.Automation.PSCredential($vmAdminUsername, (New-Object System.Security.SecureString)))
+  # -PublicIpAddressName $publicIpAddressName
+}

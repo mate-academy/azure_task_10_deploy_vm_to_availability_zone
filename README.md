@@ -47,7 +47,7 @@ In this task, you will need to write and run a Powershell script, which deploys 
     
     - Both VMs should be deployed to the `default` subnet of the virtual network `vnet`, use network security group `defaultnsg`, and use ssh key `linuxboxsshkey` (check the documentation of [New-AzVm](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvm?view=azps-11.5.0)—it allows you to specify the names of those resources as comandlet parameters). 
 
-    - VMs should use images with the friendly name `Ubuntu2204` and size `Standard_B1s`.
+    - VMs should use images with the friendly name `Ubuntu2404` and size `Standard_B2ats_v2` (deployed to the `denmarkeast` region, since `Standard_B2ats_v2` is not available for this subscription in availability zones in some other regions, e.g. `canadacentral`).
 
     - Note that in this task, you are not required to deploy a public IP resource for the VMs. 
 
