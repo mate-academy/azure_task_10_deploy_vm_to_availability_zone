@@ -59,3 +59,7 @@ New-AzVm `
 -SshKeyName $sshKeyName `
 -Zone 2 `
 -GenerateSshKey:$false
+
+$vms = Get-AzVM -ResourceGroupName $resourceGroupName
+$result = $vms | Select-Object Name, Location, @{Name="Zones"; Expression={$_.Zones}}, ProvisioningState
+$result | ConvertTo-Json | Out-File -FilePath "result.json"
