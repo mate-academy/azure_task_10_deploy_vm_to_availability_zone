@@ -1,0 +1,14 @@
+[
+  {
+    "Name": "matebox1",
+    "Location": "denmarkeast",
+    "Zones": "1",
+    "ProvisioningState": "Succeeded"
+  },
+  {
+    "Name": "matebox2",
+    "Location": "denmarkeast",
+    "Zones": "2",
+    "ProvisioningState": "Succeeded"
+  }
+]
