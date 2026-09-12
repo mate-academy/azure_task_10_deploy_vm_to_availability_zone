@@ -1,4 +1,4 @@
-$location = "uksouth"
+$location = "denmarkeast"
 $resourceGroupName = "mate-azure-task-10"
 $networkSecurityGroupName = "defaultnsg"
 $virtualNetworkName = "vnet"
@@ -10,6 +10,10 @@ $sshKeyPublicKey = Get-Content "~/.ssh/id_rsa.pub"
 $vmName = "matebox"
 $vmImage = "Ubuntu2204"
 $vmSize = "Standard_B1s"
+$vmAdminUsername = "azureuser"
+# Credential supplies the Linux admin username; authentication uses -SshKeyName (not password login).
+$securePassword = ConvertTo-SecureString "UnusedPassw0rd!" -AsPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential ($vmAdminUsername, $securePassword)
 
 Write-Host "Creating a resource group $resourceGroupName ..."
 New-AzResourceGroup -Name $resourceGroupName -Location $location
@@ -35,12 +39,28 @@ New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey 
 
 New-AzVm `
 -ResourceGroupName $resourceGroupName `
--Name $vmName `
+-Name "${vmName}-1" `
 -Location $location `
 -image $vmImage `
 -size $vmSize `
 -SubnetName $subnetName `
 -VirtualNetworkName $virtualNetworkName `
 -SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
+-Credential $credential `
+-SshKeyName $sshKeyName `
+-Zone "1"
+# -PublicIpAddressName $publicIpAddressName
+
+New-AzVm `
+-ResourceGroupName $resourceGroupName `
+-Name "${vmName}-2" `
+-Location $location `
+-image $vmImage `
+-size $vmSize `
+-SubnetName $subnetName `
+-VirtualNetworkName $virtualNetworkName `
+-SecurityGroupName $networkSecurityGroupName `
+-Credential $credential `
+-SshKeyName $sshKeyName `
+-Zone "2"
 # -PublicIpAddressName $publicIpAddressName
