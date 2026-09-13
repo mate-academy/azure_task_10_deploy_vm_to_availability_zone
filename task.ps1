@@ -22,7 +22,6 @@ $subnet = New-AzVirtualNetworkSubnetConfig -Name $subnetName -AddressPrefix $sub
 New-AzVirtualNetwork -Name $virtualNetworkName -ResourceGroupName $resourceGroupName -Location $location -AddressPrefix $vnetAddressPrefix -Subnet $subnet
 
 New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey $sshKeyPublicKey
-New-AzPublicIpAddress -Name $publicIpAddressName -ResourceGroupName $resourceGroupName -Location $location -Sku Basic -AllocationMethod Dynamic -DomainNameLabel "random32987"
 
 $vmUsername = "azureuser"
 $vmPassword = ConvertTo-SecureString (New-Guid).Guid -AsPlainText -Force
