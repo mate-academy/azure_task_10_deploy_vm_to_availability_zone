@@ -1,5 +1,5 @@
 $location = "denmarkeast"
-$resourceGroupName = "mate-resources"
+$resourceGroupName = "mate-azure-task-10"
 $networkSecurityGroupName = "defaultnsg"
 $virtualNetworkName = "vnet"
 $subnetName = "default"
@@ -11,16 +11,25 @@ $vmName = "matebox"
 $vmImage = "Ubuntu2204"
 $vmSize = "Standard_B1s"
 
-New-AzResourceGroup -Name $resourceGroupName -Location $location -Force
+Write-Host "Creating a resource group $resourceGroupName ..."
+New-AzResourceGroup -Name $resourceGroupName -Location $location
 
+Write-Host "Creating a network security group $networkSecurityGroupName ..."
 $nsgRuleSSH = New-AzNetworkSecurityRuleConfig -Name SSH  -Protocol Tcp -Direction Inbound -Priority 1001 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 22 -Access Allow;
 $nsgRuleHTTP = New-AzNetworkSecurityRuleConfig -Name HTTP  -Protocol Tcp -Direction Inbound -Priority 1002 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 8080 -Access Allow;
 New-AzNetworkSecurityGroup -Name $networkSecurityGroupName -ResourceGroupName $resourceGroupName -Location $location -SecurityRules $nsgRuleSSH, $nsgRuleHTTP
 
+$subnet = New-AzVirtualNetworkSubnetConfig -Name $subnetName -AddressPrefix $subnetAddressPrefix
+New-AzVirtualNetwork -Name $virtualNetworkName -ResourceGroupName $resourceGroupName -Location $location -AddressPrefix $vnetAddressPrefix -Subnet $subnet
+
+New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey $sshKeyPublicKey
+
+
+
 New-AzVm `
 -ResourceGroupName $resourceGroupName `
 -Name "${vmName}1" `
--Zone "1" `
+-Zone 1 `
 -Location $location `
 -Image $vmImage `
 -Size $vmSize `
@@ -32,7 +41,7 @@ New-AzVm `
 New-AzVm `
 -ResourceGroupName $resourceGroupName `
 -Name "${vmName}2" `
--Zone "2" `
+-Zone 2 `
 -Location $location `
 -Image $vmImage `
 -Size $vmSize `
