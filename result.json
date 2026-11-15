@@ -1,0 +1,18 @@
+{
+  "ResourceGroup": "mate-azure-task-10",
+  "Validation": "Passed",
+  "VirtualMachines": [
+    {
+      "Name": "matebox1",
+      "Size": "Standard_B1s",
+      "Zone": "1",
+      "Location": "denmarkeast"
+    },
+    {
+      "Name": "matebox2",
+      "Size": "Standard_B1s",
+      "Zone": "2",
+      "Location": "denmarkeast"
+    }
+  ]
+}
