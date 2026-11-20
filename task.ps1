@@ -1,4 +1,4 @@
-$location = "westus2" # any region that is available in your Azure subscription
+$location = "denmarkeast" # any region that is available in your Azure subscription
 $resourceGroupName = "mate-azure-task-10"
 $networkSecurityGroupName = "defaultnsg"
 $virtualNetworkName = "vnet"
@@ -33,14 +33,25 @@ New-AzSshKey -Name $sshKeyName -ResourceGroupName $resourceGroupName -PublicKey 
 # and set same zone you would set on the VM, but this is not required in this task. 
 # New-AzPublicIpAddress -Name $publicIpAddressName -ResourceGroupName $resourceGroupName -Location $location -Sku Basic -AllocationMethod Dynamic -DomainNameLabel "random32987"
 
-New-AzVm `
--ResourceGroupName $resourceGroupName `
--Name $vmName `
--Location $location `
--image $vmImage `
--size $vmSize `
--SubnetName $subnetName `
--VirtualNetworkName $virtualNetworkName `
--SecurityGroupName $networkSecurityGroupName `
--SshKeyName $sshKeyName 
-# -PublicIpAddressName $publicIpAddressName
+$cred = Get-Credential
+
+$zones = @("1", "2")
+
+foreach ($zone in $zones) {
+    $currentVmName = "$vmName$zone"
+
+    Write-Host "Creating VM $currentVmName in zone $zone ..."
+
+    New-AzVm `
+        -ResourceGroupName $resourceGroupName `
+        -Name $currentVmName `
+        -Location $location `
+        -Image $vmImage `
+        -Size $vmSize `
+        -SubnetName $subnetName `
+        -VirtualNetworkName $virtualNetworkName `
+        -SecurityGroupName $networkSecurityGroupName `
+        -SshKeyName $sshKeyName `
+        -Credential $cred `
+        -Zone $zone
+}
